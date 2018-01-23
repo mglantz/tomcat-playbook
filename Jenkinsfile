@@ -1,4 +1,6 @@
 node {
+    git url: 'https://github.com/mglantz/tomcat-playbook.git'
+    
     stage("Project refresh") {
         sh '''
         echo "Refreshing project in Ansible Tower."
