@@ -8,6 +8,9 @@ node {
     stage("Syntax check") {
         sh '''
         echo "Syntax checking playbooks"
+        ls
+        pwd
+        find .
         TEMPLATES=$(ls|grep yml|cut -d'.' -f1)
         # For all playbooks files we find in the cloned git repository
         for item in ${TEMPLATES[@]}; do
