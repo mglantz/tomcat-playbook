@@ -29,23 +29,34 @@ node {
             fi
             echo "Creating job_template: Test - $item"
             tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook "$item.yml" --credential "Required access on hostnet" --verbosity "debug"
-            tower-cli job launch --job-template "Test - $item check" --monitor >$item.output
+            tower-cli job launch --job-template "Test - $item check" --monitor >$item.output || true
             OK=$(cat $item.output|grep unreachable|awk '{ print $3 }'|cut -d= -f2)
             CHANGED=$(cat $item.output|grep unreachable|awk '{ print $4 }'|cut -d= -f2)
         	UNREACHABLE=$(cat $item.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
             FAILED=$(cat $item.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
-            echo "OK=$OK"
-            echo "CHANGED=$CHANGED"
-            echo "UNREACHABLE=$UNREACHABLE"
-            echo "FAILED=$FAILED"
-            echo "Test run: $item"
+            if [ "$UNREACHABLE" -ne 0 ] && [ "$FAILED" -ne 0 ]; then
+                echo "Failed test run with errors. Task status summary:"
+                echo "OK=$OK"
+                echo "CHANGED=$CHANGED"
+                echo "UNREACHABLE=$UNREACHABLE"
+                echo "FAILED=$FAILED"
+                echo "Job output:
+                cat $item.output
+                exit 1
+            else
+                echo "Test run successful for: $item"
+            fi
         done
         '''
     }
     stage("Create job template") {
         sh '''
         for item in ${TEMPLATES[@]}; do
-            echo "Create job template: $item"
+            if tower-cli job_template list|grep "$item" >/dev/null; then
+                echo "Found existing job_template for $item. Doing nothing."
+            else
+                tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
+            fi
         done
         '''
     }
