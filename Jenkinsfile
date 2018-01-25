@@ -40,7 +40,7 @@ node {
                 echo "CHANGED=$CHANGED"
                 echo "UNREACHABLE=$UNREACHABLE"
                 echo "FAILED=$FAILED"
-                echo "Job output:
+                echo "Job output:"
                 cat $item.output
                 exit 1
             else
