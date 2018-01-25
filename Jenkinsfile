@@ -60,7 +60,6 @@ node {
                     echo "Did not get answer from Tomcat running on: $item"
                     FAIL=1
                 fi
-            done
             if [ "$FAIL" -eq 0 ]; then
                 echo "Deleting Test job template for: $item."
                 tower-cli job_template delete --name "Test - $item check"
