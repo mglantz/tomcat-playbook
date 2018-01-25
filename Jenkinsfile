@@ -65,4 +65,24 @@ node {
         done
         '''
     }
+    stage("Test Tomcat application") {
+        sh '''
+        HOSTS=$(tower-cli host list -i 5|grep local.net|awk '{ print $2 }')
+        FAIL=0
+        for item in ${HOSTS[@]}; do
+                if curl -v http://$item:8080/sample/hello.jsp|grep "This is the output of a JSP page" >/dev/null; then
+                    echo "Got OK answer from Tomcat running on: $item"
+                else
+                    echo "Did not get answer from Tomcat running on: $item"
+                    FAIL=1
+                fi
+            done
+            if [ "$FAIL" -eq 0 ]; then
+                exit 0
+            else
+                exit 1
+            fi
+        done
+        '''
+    }
 }
