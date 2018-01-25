@@ -49,22 +49,6 @@ node {
         done
         '''
     }
-    stage("Create job template") {
-        sh '''
-        for item in ${TEMPLATES[@]}; do
-            if tower-cli job_template list|grep "$item" >/dev/null; then
-                echo "Found existing job_template for $item. Doing nothing."
-            else
-                tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
-                if [ "$?" -eq 0 ]; then
-                    echo "Created template for: $item"
-                else
-                    echo "Failed to create template for: $item"
-                fi
-            fi
-        done
-        '''
-    }
     stage("Test Tomcat application") {
         sh '''
         HOSTS=$(tower-cli host list -i 5|grep local.net|awk '{ print $2 }')
@@ -81,6 +65,22 @@ node {
                 exit 0
             else
                 exit 1
+            fi
+        done
+        '''
+    }
+    stage("Create job template") {
+        sh '''
+        for item in ${TEMPLATES[@]}; do
+            if tower-cli job_template list|grep "$item" >/dev/null; then
+                echo "Found existing job_template for $item. Doing nothing."
+            else
+                tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
+                if [ "$?" -eq 0 ]; then
+                    echo "Created template for: $item"
+                else
+                    echo "Failed to create template for: $item"
+                fi
             fi
         done
         '''
