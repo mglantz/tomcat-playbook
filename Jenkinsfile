@@ -20,6 +20,7 @@ node {
     }
     stage("Test run") {
         sh '''
+        # Do a test run of the playbooks
         TEMPLATES=$(ls|grep yml|cut -d'.' -f1)
         for item in ${TEMPLATES[@]}; do
             # Delete previously created test playbooks
@@ -51,6 +52,7 @@ node {
     }
     stage("Test Tomcat application") {
         sh '''
+        # Test if we can reach the Tomcat application
         HOSTS=$(tower-cli host list -i 5|grep local.net|awk '{ print $2 }')
         FAIL=0
         for item in ${HOSTS[@]}; do
@@ -71,6 +73,7 @@ node {
     }
     stage("Create job template") {
         sh '''
+        # Create a job template in Tower and set tag that it has been tested OK
         for item in ${TEMPLATES[@]}; do
             if tower-cli job_template list|grep "$item" >/dev/null; then
                 echo "Found existing job_template for $item. Doing nothing."
