@@ -62,7 +62,8 @@ node {
                 fi
             done
             if [ "$FAIL" -eq 0 ]; then
-                exit 0
+                echo "Deleting Test job template for: $item."
+                tower-cli job_template delete --name "Test - $item check"
             else
                 exit 1
             fi
@@ -75,7 +76,7 @@ node {
             if tower-cli job_template list|grep "$item" >/dev/null; then
                 echo "Found existing job_template for $item. Doing nothing."
             else
-                tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
+                tower-cli job_template create --name "$item" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
                 if [ "$?" -eq 0 ]; then
                     echo "Created template for: $item"
                 else
