@@ -58,16 +58,12 @@ node {
         for item in ${HOSTS[@]}; do
                 if curl -v http://$item:8080/sample/hello.jsp|grep "This is the output of a JSP page" >/dev/null; then
                     echo "Got OK answer from Tomcat running on: $item"
+                    echo "Deleting test template"
+                    tower-cli job_template delete --name "Test - $item check"
                 else
                     echo "Did not get answer from Tomcat running on: $item"
-                    FAIL=1
+                    exit 1
                 fi
-            if [ "$FAIL" -eq 0 ]; then
-                echo "Deleting Test job template for: $item."
-                tower-cli job_template delete --name "Test - $item check"
-            else
-                exit 1
-            fi
         done
         '''
     }
