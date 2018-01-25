@@ -56,6 +56,11 @@ node {
                 echo "Found existing job_template for $item. Doing nothing."
             else
                 tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
+                if [ "$?" -eq 0 ]; then
+                    echo "Created template for: $item"
+                else
+                    echo "Failed to create template for: $item"
+                fi
             fi
         done
         '''
