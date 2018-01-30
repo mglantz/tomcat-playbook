@@ -56,7 +56,8 @@ node {
         if grep -q 'changed=0.*unreachable=0.*failed=0' tomcat.output; then
             echo "Idempotence test OK"
         else
-            echo "Idempotence test failed."
+            echo "Idempotence test failed. Details below:"
+            cat tomcat.output
             exit 1
         fi
         '''
