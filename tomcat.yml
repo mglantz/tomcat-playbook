@@ -1,4 +1,4 @@
-- name: Install a Tomcat Application server
+- name: Install Tomcat Application server
   hosts: all
   tasks:
     - name: Ensure tomcat is installed
@@ -17,6 +17,6 @@
         mode: 0777
       notify:
       - restart tomcat
-  handlers:
+   handlers:
     - name: restart tomcat
       service: name=tomcat state=restarted
