@@ -1,5 +1,5 @@
 # tomcat-playbook
-Example playbook for installing Tomcat and a Jenkins pipeline to test and deploy it to Ansible Tower or AWX.
+Example playbook for installing Tomcat and a Jenkins pipeline to test and deploy it to Ansible Tower or AWX. Jenkins pipeline tries to demonstrate established best practices for testing Ansible playbooks described by Sam Doran, Senior Ansible Software Developer at Red Hat.
 
 # How
 * The Jenkins pipeline is the file called Jenkinsfile. For information about installing Jenkins, visit: https://jenkins.io/doc/pipeline/tour/getting-started/ for information about how to setup pipelines from a Jenkinsfile, visit: https://jenkins.io/doc/book/pipeline/jenkinsfile/ 
