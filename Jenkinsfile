@@ -39,21 +39,25 @@ node {
         
         # Launch run of job template to see if it works. Force exit to 0 and evaluate
         tower-cli job launch --job-template "Test - tomcat" --monitor >tomcat.output || true
-        OK=$(cat tomcat.output|grep unreachable|awk '{ print $3 }'|cut -d= -f2)
-        CHANGED=$(cat tomcat.output|grep unreachable|awk '{ print $4 }'|cut -d= -f2)
-        UNREACHABLE=$(cat tomcat.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
-        FAILED=$(cat tomcat.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
-        if [ "$UNREACHABLE" -ne 0 ] && [ "$FAILED" -ne 0 ]; then
-            echo "Failed test run with errors. Task status summary:"
-            echo "OK=$OK"
-            echo "CHANGED=$CHANGED"
-            echo "UNREACHABLE=$UNREACHABLE"
-            echo "FAILED=$FAILED"
-            echo "Job output:"
+        if grep -q 'unreachable=0.*failed=0' tomcat.output; then
+            echo "Test run successful for: Test - tomcat"
+        else
+            echo "Failed test. Playbook output:"
             cat tomcat.output
             exit 1
+        fi
+        '''
+    }
+    stage("Test idempotence") {
+        sh '''
+        # Additional run of playbook to test playbook idempotence
+        tower-cli job launch --job-template "Test - tomcat" --monitor >tomcat.output || true
+        
+        if grep -q 'changed=0.*unreachable=0.*failed=0' tomcat.output; then
+            echo "Idempotence test OK"
         else
-            echo "Test run successful for: Test - tomcat"
+            echo "Idempotence test failed."
+            exit 1
         fi
         '''
     }
