@@ -16,6 +16,7 @@ node {
         else
             echo "Style check issues:"
             ansible-lint ./tomcat.yml
+            exit 1
         fi
         '''
     }
