@@ -18,6 +18,7 @@ node {
             ansible-lint ./tomcat.yml
         fi
         '''
+    }
     stage("AWX Project refresh") {
         sh '''
         # This ensures that Ansible Tower has the latest version of playbooks in our project
