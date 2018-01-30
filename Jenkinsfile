@@ -66,7 +66,7 @@ node {
     stage("Create job template") {
         sh '''
         # Create a job template in Tower and set tag that it has been tested OK
-        tower-cli job_template create --name "Tomcat" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook "tomcat.yml" --credential "Required access on hostnet" --verbosity "debug" --job_tags testing_ok
+        tower-cli job_template create --name "Tomcat" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook "tomcat.yml" --credential "Required access on hostnet" --verbosity "debug" --job-tags testing_ok
         '''
     }
 }
