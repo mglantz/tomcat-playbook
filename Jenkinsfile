@@ -2,64 +2,58 @@ node {
     git url: 'https://github.com/mglantz/tomcat-playbook.git', branch: 'bugfix'
     stage("Syntax check") {
         sh '''
-        echo "Syntax checking playbooks"
-        TEMPLATES=$(ls|grep yml|cut -d'.' -f1)
-        # For all playbooks files we find in the cloned git repository
-        for item in ${TEMPLATES[@]}; do
-            # Run a syntax check for all the playbooks
-            ansible-playbook --syntax-check ./$item.yml
-        done
+        echo "Syntax checking playbook"
+        # Run a syntax check for the playbook
+        ansible-playbook --syntax-check ./tomcat.yml
         '''
     }
     stage("AWX Project refresh") {
         sh '''
-        # This ensures that Ansible Tower has the latest version of any playbooks
+        # This ensures that Ansible Tower has the latest version of playbooks in our project
         echo "Refreshing project in Ansible Tower."
         tower-cli project update -n "Tomcat Playbooks Dev" --monitor
         '''
     }
     stage("Test run") {
         sh '''
-        # Do a test run of the playbooks
-        TEMPLATES=$(ls|grep yml|cut -d'.' -f1)
-        for item in ${TEMPLATES[@]}; do
-            # Delete previously created test playbooks
-            if tower-cli job_template list|grep "Test - $item" >/dev/null; then
-                echo "Found existing Test job_template for $item. Deleting it."
-                tower-cli job_template delete --name "Test - $item check"
-            fi
-            echo "Creating job_template: Test - $item"
-            tower-cli job_template create --name "Test - $item check" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks Dev" --playbook "$item.yml" --credential "Required access on hostnet" --verbosity "debug"
-            tower-cli job launch --job-template "Test - $item check" --monitor >$item.output || true
-            OK=$(cat $item.output|grep unreachable|awk '{ print $3 }'|cut -d= -f2)
-            CHANGED=$(cat $item.output|grep unreachable|awk '{ print $4 }'|cut -d= -f2)
-        	UNREACHABLE=$(cat $item.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
-            FAILED=$(cat $item.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
-            if [ "$UNREACHABLE" -ne 0 ] && [ "$FAILED" -ne 0 ]; then
-                echo "Failed test run with errors. Task status summary:"
-                echo "OK=$OK"
-                echo "CHANGED=$CHANGED"
-                echo "UNREACHABLE=$UNREACHABLE"
-                echo "FAILED=$FAILED"
-                echo "Job output:"
-                cat $item.output
-                exit 1
-            else
-                echo "Test run successful for: $item"
-            fi
+        # Do a test run of the playbook
+        if tower-cli job_template list|grep "Test - tomcat" >/dev/null; then
+            echo "Found existing Test job_template for tomcat. Deleting it."
+            tower-cli job_template delete --name "Test - tomcat"
+        fi
+        echo "Creating job_template: Test - tomcat"
+        tower-cli job_template create --name "Test - tomcat" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks Dev" --playbook "tomcat.yml" --credential "Required access on hostnet" --verbosity "debug"
+        tower-cli job launch --job-template "Test - tomcat" --monitor >tomcat.output || true
+        OK=$(cat tomcat.output|grep unreachable|awk '{ print $3 }'|cut -d= -f2)
+        CHANGED=$(cat tomcat.output|grep unreachable|awk '{ print $4 }'|cut -d= -f2)
+        UNREACHABLE=$(cat tomcat.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
+        FAILED=$(cat tomcat.output|grep unreachable|awk '{ print $5 }'|cut -d= -f2)
+        if [ "$UNREACHABLE" -ne 0 ] && [ "$FAILED" -ne 0 ]; then
+            echo "Failed test run with errors. Task status summary:"
+            echo "OK=$OK"
+            echo "CHANGED=$CHANGED"
+            echo "UNREACHABLE=$UNREACHABLE"
+            echo "FAILED=$FAILED"
+            echo "Job output:"
+            cat tomcat.output
+            exit 1
+        else
+            echo "Test run successful for: Test - tomcat"
+        fi
         done
         '''
     }
     stage("Test Tomcat application") {
         sh '''
         # Test if we can reach the Tomcat application
+        # First we need to fetch a list of hosts in our inventory
         HOSTS=$(tower-cli host list -i 5|grep local.net|awk '{ print $2 }')
         FAIL=0
         for item in ${HOSTS[@]}; do
                 if curl -v http://$item:8080/sample/hello.jsp|grep "This is the output of a JSP page" >/dev/null; then
                     echo "Got OK answer from Tomcat running on: $item"
                     echo "Deleting test template"
-                    tower-cli job_template delete --name "Test - tomcat check"
+                    tower-cli job_template delete --name "Test - tomcat"
                 else
                     echo "Did not get answer from Tomcat running on: $item"
                     exit 1
@@ -73,18 +67,7 @@ node {
     stage("Create job template") {
         sh '''
         # Create a job template in Tower and set tag that it has been tested OK
-        for item in ${TEMPLATES[@]}; do
-            if tower-cli job_template list|grep "$item" >/dev/null; then
-                echo "Found existing job_template for $item. Doing nothing."
-            else
-                tower-cli job_template create --name "$item" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
-                if [ "$?" -eq 0 ]; then
-                    echo "Created template for: $item"
-                else
-                    echo "Failed to create template for: $item"
-                fi
-            fi
-        done
+        tower-cli job_template create --name "Tomcat" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks" --playbook --job-tags testing_ok
         '''
     }
 }
