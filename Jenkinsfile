@@ -7,6 +7,17 @@ node {
         ansible-playbook --syntax-check ./tomcat.yml
         '''
     }
+    stage("Style check") {
+        sh '''
+        echo "Style checking playbook"
+        TEST=$(ansible-lint ./tomcat.yml)
+        if [ "$TEST" == "" ]; then
+            echo "Style check OK"
+        else
+            echo "Style check issues:"
+            ansible-lint ./tomcat.yml
+        fi
+        '''
     stage("AWX Project refresh") {
         sh '''
         # This ensures that Ansible Tower has the latest version of playbooks in our project
