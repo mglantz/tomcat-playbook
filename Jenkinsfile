@@ -59,7 +59,7 @@ node {
                 if curl -v http://$item:8080/sample/hello.jsp|grep "This is the output of a JSP page" >/dev/null; then
                     echo "Got OK answer from Tomcat running on: $item"
                     echo "Deleting test template"
-                    tower-cli job_template delete --name "Test - $item check"
+                    tower-cli job_template delete --name "Test - tomcat check"
                 else
                     echo "Did not get answer from Tomcat running on: $item"
                     exit 1
