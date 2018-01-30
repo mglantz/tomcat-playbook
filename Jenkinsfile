@@ -40,7 +40,6 @@ node {
         else
             echo "Test run successful for: Test - tomcat"
         fi
-        done
         '''
     }
     stage("Test Tomcat application") {
