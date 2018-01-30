@@ -22,7 +22,7 @@ node {
     stage("AWX Project refresh") {
         sh '''
         # This ensures that Ansible Tower has the latest version of playbooks in our project
-        echo "Refreshing project in Ansible Tower."
+        echo "Refreshing project in Ansible Tower from which connects to our dev branch and playbook."
         tower-cli project update -n "Tomcat Playbooks Dev" --monitor
         '''
     }
@@ -35,6 +35,8 @@ node {
         fi
         echo "Creating job_template: Test - tomcat"
         tower-cli job_template create --name "Test - tomcat" --description "Created by Jenkins: $(date)" --job-type run --inventory Hostnetwork --project "Tomcat Playbooks Dev" --playbook "tomcat.yml" --credential "Required access on hostnet" --verbosity "debug"
+        
+        # Launch run of job template to see if it works. Force exit to 0 and evaluate
         tower-cli job launch --job-template "Test - tomcat" --monitor >tomcat.output || true
         OK=$(cat tomcat.output|grep unreachable|awk '{ print $3 }'|cut -d= -f2)
         CHANGED=$(cat tomcat.output|grep unreachable|awk '{ print $4 }'|cut -d= -f2)
@@ -57,7 +59,7 @@ node {
     stage("Test Tomcat application") {
         sh '''
         # Test if we can reach the Tomcat application
-        # First we need to fetch a list of hosts in our inventory
+        # First we need to fetch a list of hosts in our inventory from Ansible Tower
         HOSTS=$(tower-cli host list -i 5|grep local.net|awk '{ print $2 }')
         FAIL=0
         for item in ${HOSTS[@]}; do
