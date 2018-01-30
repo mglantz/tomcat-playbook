@@ -67,6 +67,9 @@ node {
         done
         '''
     }
+    stage("Merge to master") {
+        input "Please go ahead and merge your changes to the master branch"
+    }
     stage("Create job template") {
         sh '''
         # Create a job template in Tower and set tag that it has been tested OK
