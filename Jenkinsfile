@@ -76,7 +76,7 @@ node {
         '''
     }
     stage("Merge to master") {
-        input "Please go ahead and merge your changes to the master branch"
+        input "Press proceed when you have merged the code to master"
     }
     stage("Create job template") {
         sh '''
