@@ -8,3 +8,4 @@ To be able to run the pipeline, you need to first install tower-cli and ansible-
 # pip2 install ansible-tower-cli
 # pip2 install ansible-lint
 ```
+Next you configure the tower-cli to automatically login. For information on how to configure tower-cli, visit: http://docs.ansible.com/ansible-tower/latest/html/towerapi/tower_cli.html
