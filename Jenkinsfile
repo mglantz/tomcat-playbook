@@ -1,5 +1,5 @@
 node {
-    git url: 'https://github.com/mglantz/tomcat-playbook.git'
+    git url: 'https://github.com/mglantz/tomcat-playbook.git' branch: 'bugfix'
     stage("Syntax check") {
         sh '''
         echo "Syntax checking playbooks"
