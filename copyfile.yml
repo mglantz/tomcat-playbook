@@ -1,0 +1,4 @@
+- name copy a file
+  copy:
+    content: "{{ a }}"
+    dest: "/tmp/file"
