@@ -1,7 +1,7 @@
 - name: Install Tomcat Application server
   hosts: all
   tasks:
-    - name copy a file
+    - name: copy a file
       copy:
         content: "{{ a }}"
         dest: "/tmp/file"
