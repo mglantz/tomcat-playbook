@@ -10,7 +10,7 @@
         name: tomcat
         enabled: yes
         state: started
-    - name: Download and deploy Java application
+    - name: Download and deploy sample Java application
       get_url:
         url: https://tomcat.apache.org/tomcat-6.0-doc/appdev/sample/sample.war
         dest: /var/lib/tomcat/webapps/sample.war
