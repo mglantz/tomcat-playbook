@@ -1,7 +1,7 @@
 - name: Install Tomcat Application server and deploy sample Java app
   hosts: all
   tasks:
-    - name: Ensure tomcat is installed
+    - name: Ensure that the tomcat application server is installed
       yum:
         name: tomcat
         state: present
